@@ -1,0 +1,12 @@
+{
+  "name": "swiffer",
+  "main": "Swiffer.js",
+  "description": "Command line syntax checker for Dust.",
+  "keywords": ["Dust", "syntax", "lint"],
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "dependencies": {
+    "dustjs-linkedin": "latest"
+  }
+}
