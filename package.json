@@ -7,6 +7,7 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "dustjs-linkedin": "latest"
+    "dustjs-linkedin": "latest",
+    "underscore": "1.5.1"
   }
 }
