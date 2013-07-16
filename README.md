@@ -13,16 +13,24 @@ Swiffer uses Dust's dust.parse to create an Abstract Syntax Tree (AST) of the gi
 DSL examples:
 ===========
 ```
-{
-  "name": "ifDeprecation",
-  "description": "The @if creates a security hole and should be repalced by @eq, @gt, @lt, etc.",
-  "target": {
-    "type": "@if"
+[
+  {
+    "name": "ifDeprecation",
+    "description": "The @if creates a security hole and should be repalced by @eq, @gt, @lt, etc.",
+    "target": {
+      "type": "@",
+      "matches": /if/
+    }
   },
-  "rule": {
-    "exists": {
-      "message": "The @if creates a security hole and should be repalced by @eq, @gt, @lt, etc."
+  {
+    'name': 'special characters',
+    'description': 'Use one of the available special characters: s, n, r, lb, rb',
+    'target': {
+      'type': 'special'
+    },
+    'conditions': {
+      'matches': /[s|n|r|lb|rb]/
     }
   }
-}
+]
 ```
