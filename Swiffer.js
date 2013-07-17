@@ -30,6 +30,19 @@ swiffer.rules = {
       }
     },
     {
+      'name': '@pre.i18n key names',
+      'description': '@pre.i18n key should start with i18n',
+      'target': {
+        'type': '@',
+        'matches': /pre\.i18n/
+      },
+      'conditions': {
+        'has': {
+          'params': [['key', /^i18n+/]]
+        }
+      }
+    },
+    {
       'name': '@pre.i18n has filter="|s" or output="json"',
       'description': '@pre.i18n must have filter="|s" or output="json"',
       'target': {
@@ -68,7 +81,7 @@ swiffer.rules = {
   'reference': [
     {
       'name': '|j|s on reference',
-      'description': 'references within filters should have |j|s',
+      'description': 'references within @jsControl\'s should have |j|s',
       'target': {
         'type': 'reference',
         'within': [ '@jsControl' ]
@@ -142,8 +155,8 @@ swiffer.stepParts = function(context, node) {
  * Step through the nodes of the AST
  * @param {Object} context Where we are in the AST
  * @param {Array} node The current node in the AST
- * @return {????}
- * @public ???
+ * @return {Void}
+ * @public
  */
 swiffer.step = function(context, node) {
   swiffer.nodes[node[0]](context, node);
@@ -178,6 +191,9 @@ swiffer.nodes = {
   'partial': function(context, node) {
   },
   '<': function(context, node) {
+    context.name = node[1][1];
+    swiffer.check(context, node);
+    swiffer.step(context, node[4]);
   },
   '+': function(context, node) {
   },
@@ -341,7 +357,8 @@ swiffer.conditions = {
     if (_.difference(filters, nodeFilters).length) {
       return false;
     }
+    return true;
   }
 };
 
-swiffer.clean('{@jsControl}{ref|s}{/jsControl}{~f}');
+swiffer.clean('{@pre.i18n key="i18n_key" text="My text" output="json"/}{@pre.i18n key="i18n_My_key" text="more text" output="json"/}{@jsControl}{ref|s|j}{/jsControl}{~s}');
