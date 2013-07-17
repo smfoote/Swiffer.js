@@ -1,10 +1,10 @@
 /* global dust:true, _:true, console:false */
 var swiffer = {},
-    dust = require('dustjs-linkedin'),
-    _ = require('underscore');
+    dust    = require('dustjs-linkedin'),
+    _       = require('underscore');
 
 swiffer.errors = [];
-swiffer.rules = {
+swiffer.rules  = {
   '#': [
   ],
   '@': [
@@ -344,4 +344,4 @@ swiffer.conditions = {
   }
 };
 
-swiffer.clean('{@jsControl}{ref|s}{/jsControl}{~f}');
+module.exports = swiffer;
