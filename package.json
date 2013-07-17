@@ -2,12 +2,24 @@
   "name": "swiffer",
   "main": "Swiffer.js",
   "description": "Command line syntax checker for Dust.",
+  "version": "0.0.1",
   "keywords": ["Dust", "syntax", "lint"],
   "engines": {
     "node": ">=0.8.0"
   },
+  "bin": {
+    "swiffer": "./bin/swiffer"
+  },
   "dependencies": {
     "dustjs-linkedin": "latest",
     "underscore": "1.5.1"
+  },
+  "devDependencies": {
+    "mocha": "1.12.0",
+    "sinon": "1.7.3",
+    "expect.js": "0.2.0"
+  },
+  "scripts": {
+    "test": "mocha test/unit/ --recursive --reporter nyan"
   }
 }
