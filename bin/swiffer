@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+var swiffer  = require('../Swiffer'),
+    template = process.argv.slice(2).join(' ');
+
+console.log('swiffing', template);
+swiffer.clean(template);
