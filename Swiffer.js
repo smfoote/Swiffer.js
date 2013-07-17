@@ -361,4 +361,4 @@ swiffer.conditions = {
   }
 };
 
-swiffer.clean('{@pre.i18n key="i18n_key" text="My text" output="json"/}{@pre.i18n key="i18n_My_key" text="more text" output="json"/}{@jsControl}{ref|s|j}{/jsControl}{~s}');
+module.exports = swiffer;
