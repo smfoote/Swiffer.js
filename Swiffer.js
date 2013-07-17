@@ -114,7 +114,8 @@ swiffer.rules = {
  * @return {Void}
  * @private
  */
-swiffer.reportError = function(msg) {
+swiffer.reportError = function(msg, line, col) {
+  msg = 'Line ' + line[1] + ', Column ' + col[1] + ': ' + msg;
   swiffer.errors.push(msg);
   console.error(msg);
 };
@@ -146,7 +147,7 @@ swiffer.clean = function(template) {
  */
 swiffer.stepParts = function(context, node) {
   var i, len;
-  for (i=1, len=node.length; i<len; i++) {
+  for (i=1, len=node.length - 2; i<len; i++) {
     swiffer.step(context, node[i]);
   }
 };
@@ -275,11 +276,11 @@ swiffer.check = function(context, node) {
     if (conditions) {
       _.each(conditions, function(condition, key) {
         if (!swiffer.conditions[key](condition, node, context)) {
-          swiffer.reportError(rule.description);
+          swiffer.reportError(rule.description, node.slice(-2)[0], node.slice(-1)[0]);
         }
       });
     } else {
-      swiffer.reportError(rule.description);
+      swiffer.reportError(rule.description, node.slice(-2)[0], node.slice(-1)[0]);
     }
   });
 };
@@ -361,4 +362,4 @@ swiffer.conditions = {
   }
 };
 
-swiffer.clean('{@pre.i18n key="i18n_key" text="My text" output="json"/}{@pre.i18n key="i18n_My_key" text="more text" output="json"/}{@jsControl}{ref|s|j}{/jsControl}{~s}');
+swiffer.clean('{@pre.i18n key="i18n_key" test="My text" output="json"/}{@pre.i18n key="i18n_My_key" text="more text" output="jsn"/}{@jsControl}{ref|s|j}{/jsControl}{~s}');
