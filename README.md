@@ -10,6 +10,13 @@ How it works:
 =============
 Swiffer uses Dust's dust.parse to create an Abstract Syntax Tree (AST) of the given Dust template. If there are any errors, Swiffer displays these then exits. If the template is successfully parsed, Swiffer walks the AST and checks all applicable rules for each node of the tree.
 
+Getting Started:
+================
+# Clone the repo
+# run `npm install` to download dependencies
+# Run `bin/swiffer examples/jsControl.tl` to run Swiffer on an example file.
+# Go wild. Create your own rules in .swifferrc and test your own templates.
+
 DSL examples:
 ===========
 ```
@@ -19,17 +26,30 @@ DSL examples:
     "description": "The @if creates a security hole and should be repalced by @eq, @gt, @lt, etc.",
     "target": {
       "type": "@",
-      "matches": /if/
+      "matches": "if"
     }
   },
   {
-    'name': 'special characters',
-    'description': 'Use one of the available special characters: s, n, r, lb, rb',
-    'target': {
-      'type': 'special'
+    "name": "special characters",
+    "description": "Use one of the available special characters: s, n, r, lb, rb",
+    "target": {
+      "type": "special"
     },
-    'conditions': {
-      'matches': /[s|n|r|lb|rb]/
+    "conditions": {
+      "matches": "[s|n|r|lb|rb]"
+    }
+  },
+  {
+    "name": "jsControl |j|s",
+    "description": "references within a jsControl should have |j|s",
+    "target": {
+      "type": "reference",
+      "within": "@jsControl"
+    },
+    "conditions": {
+      "has": {
+        "filters": ["j", "s"]
+      }
     }
   }
 ]
