@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 var swiffer  = require('../Swiffer'),
-    template = process.argv.slice(2).join(' ');
+    fs = require('fs'),
+    templateName = process.argv.slice(2).join(' '),
+    template;
 
-console.log('swiffing', template);
+try {
+  template = fs.readFileSync(templateName, {encoding: 'utf8'});
+} catch(err) {
+  console.error(err);
+}
 swiffer.clean(template);

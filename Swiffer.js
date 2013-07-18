@@ -1,110 +1,19 @@
 /* global dust:true, _:true, console:false */
 var swiffer = {},
     dust = require('dustjs-linkedin'),
+    fs = require('fs'),
     _ = require('underscore');
 
-swiffer.errors = [];
 swiffer.rules = {
-  '#': [
-  ],
-  '@': [
-    {
-      'name': '@if',
-      'description': '@if is deprecated. Please use @eq, @gt, @lt, etc.',
-      'target': {
-        'type': '@',
-        'matches': /if/
-      }
-    },
-    {
-      'name': '@pre.i18n has key and text',
-      'description': '@pre.i18n must have both `key` and `text` params',
-      'target': {
-        'type': '@',
-        'matches': /pre\.i18n/
-      },
-      'conditions': {
-        'has': {
-          'params': [['key'],['text']]
-        }
-      }
-    },
-    {
-      'name': '@pre.i18n key names',
-      'description': '@pre.i18n key should start with i18n',
-      'target': {
-        'type': '@',
-        'matches': /pre\.i18n/
-      },
-      'conditions': {
-        'has': {
-          'params': [['key', /^i18n+/]]
-        }
-      }
-    },
-    {
-      'name': '@pre.i18n has filter="|s" or output="json"',
-      'description': '@pre.i18n must have filter="|s" or output="json"',
-      'target': {
-        'type': '@',
-        'matches': /pre\.i18n/
-      },
-      'conditions': {
-        'or': [
-          {
-            'has': {
-              'params': [['filter','|s']]
-            }
-          },
-          {
-            'or': [
-              {
-                'has': {
-                  'params': [['output','json']]
-                }
-              },
-              {
-                'has': {
-                  'params': [['output', 'none']]
-                }
-              }
-            ]
-          }
-        ]
-      }
-    }
-  ],
-  '?': [
-  ],
-  '^': [
-  ],
-  'reference': [
-    {
-      'name': '|j|s on reference',
-      'description': 'references within @jsControl\'s should have |j|s',
-      'target': {
-        'type': 'reference',
-        'within': [ '@jsControl' ]
-      },
-      'conditions': {
-        'has': {
-          'filters': ['j', 's']
-        }
-      }
-    }
-  ],
-  'special': [
-    {
-      'name': 'special characters',
-      'description': 'Use one of the available special characters: s, n, r, lb, rb',
-      'target': {
-        'type': 'special'
-      },
-      'conditions': {
-        'matches': /[s|n|r|lb|rb]/
-      }
-    }
-  ]
+  '#': [],
+  '?': [],
+  '^': [],
+  '@': [],
+  '>': [],
+  '<': [],
+  '+': [],
+  'special': [],
+  'reference': [],
 };
 
 /**
@@ -115,11 +24,30 @@ swiffer.rules = {
  * @private
  */
 swiffer.reportError = function(msg, line, col) {
-  msg = 'Line ' + line[1] + ', Column ' + col[1] + ': ' + msg;
-  swiffer.errors.push(msg);
+  if (line && col) {
+    msg = 'Line ' + line + ', Column ' + col + ': ' + msg;
+  }
   console.error(msg);
 };
 
+/**
+ * Take a set of rules and sort them by type, assigning them to swiffer.rules
+ * @method sortRulesByType
+ * @param {String} rules A string containing the rules.
+ * @return {Void}
+ * @private
+ */
+function sortRulesByType(rules) {
+  rules = JSON.parse(rules);
+  _.each(rules, function(rule) {
+    var type = rule.target.type;
+    if (swiffer.rules[type]) {
+      swiffer.rules[type].push(rule);
+    } else {
+      swiffer.rules.type = [rule];
+    }
+  });
+}
 /**
  * Report any parse errors and rule exceptions of a given template
  * @param {String} template The template to be cleaned
@@ -133,12 +61,14 @@ swiffer.clean = function(template) {
     within: [],
     name: ''
   }, ast;
+  // Get the rules set up
+  sortRulesByType(fs.readFileSync('./.swifferrc'));
   try {
     ast = dust.parse(template);
     swiffer.step(context, ast);
   } catch (err) {
     // Find any parse errors
-    swiffer.reportError(err);
+    swiffer.reportError(err.message, err.line, err.column);
   }
 };
 
@@ -216,6 +146,10 @@ swiffer.nodes = {
   'literal': function() {
     return true;
   },
+  'buffer': function() {
+  },
+  'format': function() {
+  },
   'params': function(context, node) {
   },
   'bodies': function(context, node) {
@@ -249,7 +183,8 @@ swiffer.getRules = function(context, node) {
   for (i=0, len=rules.length; i<len; i++) {
     rule = rules[i];
     if ((rule.target.within && !checkWithin(rule.target.within, context.within)) ||
-        (rule.target.matches && !rule.target.matches.test(name))) {
+        (rule.target.matches && !(new RegExp(rule.target.matches).test(name))) ||
+        (rule.target.equals && rule.target.equals !== name)) {
      // rules.splice(i, 1);
     } else {
       result.push(rule);
@@ -276,11 +211,11 @@ swiffer.check = function(context, node) {
     if (conditions) {
       _.each(conditions, function(condition, key) {
         if (!swiffer.conditions[key](condition, node, context)) {
-          swiffer.reportError(rule.description, node.slice(-2)[0], node.slice(-1)[0]);
+          swiffer.reportError(rule.description, node.slice(-2)[0][1], node.slice(-1)[0][1]);
         }
       });
     } else {
-      swiffer.reportError(rule.description, node.slice(-2)[0], node.slice(-1)[0]);
+      swiffer.reportError(rule.description, node.slice(-2)[0][1], node.slice(-1)[0][1]);
     }
   });
 };
@@ -328,6 +263,7 @@ swiffer.conditions = {
   },
   'matches': function(regex, node, context) {
     var name = context.name;
+    regex = new RegExp(regex);
     return regex.test(name);
   },
   'params': function(params, node) {

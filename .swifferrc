@@ -1,0 +1,20 @@
+[
+  {
+    "name": "@if",
+    "description": "@if is deprecated. Please use @eq, @gt, @lt, etc.",
+    "target": {
+      "type": "@",
+      "matches": "if"
+    }
+  },
+  {
+    "name": "special characters",
+    "description": "Use one of the available special characters: s, n, r, lb, rb",
+    "target": {
+      "type": "special"
+    },
+    "conditions": {
+      "matches": "[s|n|r|lb|rb]"
+    }
+  }
+]
