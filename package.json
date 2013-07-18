@@ -3,6 +3,7 @@
   "main": "Swiffer.js",
   "description": "Command line syntax checker for Dust.",
   "version": "0.0.1",
+  "author": "Steven Foote <sfoote@linkedin.com>",
   "keywords": ["Dust", "syntax", "lint"],
   "engines": {
     "node": ">=0.8.0"
