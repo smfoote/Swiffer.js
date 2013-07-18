@@ -12,10 +12,11 @@ Swiffer uses Dust's dust.parse to create an Abstract Syntax Tree (AST) of the gi
 
 Getting Started:
 ================
-# Clone the repo
-# run `npm install` to download dependencies
-# Run `bin/swiffer examples/jsControl.tl` to run Swiffer on an example file.
-# Go wild. Create your own rules in .swifferrc and test your own templates.
+
+1. Clone the repo
+2. run `npm install` to download dependencies
+3. Run `bin/swiffer examples/jsControl.tl` to run Swiffer on an example file.
+4. Go wild. Create your own rules in .swifferrc and test your own templates.
 
 DSL examples:
 ===========
