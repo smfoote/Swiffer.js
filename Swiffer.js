@@ -14,6 +14,7 @@ swiffer.rules = {
   '+': [],
   'special': [],
   'reference': [],
+  'comment':[]
 };
 
 /**
@@ -48,6 +49,7 @@ function sortRulesByType(rules) {
     }
   });
 }
+
 /**
  * Report any parse errors and rule exceptions of a given template
  * @param {String} template The template to be cleaned
@@ -159,6 +161,9 @@ swiffer.nodes = {
   },
   'special': function(context, node) {
     context.name = node[1];
+    swiffer.check(context, node);
+  },
+  'comment': function(context, node) {
     swiffer.check(context, node);
   }
 };
