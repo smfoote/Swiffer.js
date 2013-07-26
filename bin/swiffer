@@ -5,8 +5,8 @@ var swiffer  = require('../Swiffer'),
     template;
 
 try {
-  template = fs.readFileSync(templateName, {encoding: 'utf8'});
+  template = fs.readFileSync(templateName).toString('utf8');
+  swiffer.clean(template);
 } catch(err) {
   console.error(err);
 }
-swiffer.clean(template);
