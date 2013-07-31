@@ -5,7 +5,7 @@ var sinon   = require('sinon'),
 describe('Swiffer.js', function () {
 
   describe('clean an invalid template', function () {
-    var template = '{fooo{fooo{fum}';
+    var template = '{#fooo}fooo{/fum}';
 
     it('should report an error for an invalid template', function () {
       var spy = sinon.spy(swiffer, 'reportError');

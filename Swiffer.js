@@ -62,14 +62,21 @@ swiffer.clean = function(template) {
   var context = {
     within: [],
     name: ''
-  }, ast;
+  }, ast, errInfo;
   // Get the rules set up
-  sortRulesByType(fs.readFileSync('./.swifferrc'));
+  sortRulesByType(fs.readFileSync('./.swifferrc').toString('utf8'));
   try {
     ast = dust.parse(template);
     swiffer.step(context, ast);
   } catch (err) {
     // Find any parse errors
+    if (!err.line && !err.column) {
+      // Extract line and column from the message.
+      errInfo = err.message.match(/line : (\d+), column : (\d+)/);
+      err.line = errInfo[1];
+      err.column = errInfo[2];
+      err.message = err.message.split('At line')[0];
+    }
     swiffer.reportError(err.message, err.line, err.column);
   }
 };
@@ -89,12 +96,20 @@ swiffer.stepParts = function(context, node) {
  * @param {Object} context Where we are in the AST
  * @param {Array} node The current node in the AST
  * @return {Void}
- * @public
+ * @private
  */
 swiffer.step = function(context, node) {
   swiffer.nodes[node[0]](context, node);
 };
 
+/**
+ * Run a check on the section, and step into the body of the section
+ * @method stepThroughSection
+ * @param {Object} context Where we are in the AST
+ * @param {Array} node The current node in the AST
+ * @return {Void}
+ * @private
+ */
 swiffer.stepThroughSection = function(context, node) {
   var type = node[0];
   context.name = node[1][1];
@@ -266,18 +281,31 @@ swiffer.conditions = {
     }
     return true;
   },
+  'hasOnly': function(condition, node) {
+    for (var k in condition) {
+      if (condition.hasOwnProperty(k)) {
+        if (!swiffer.conditions[k](condition[k], node, true)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  },
   'matches': function(regex, node, context) {
     var name = context.name;
     regex = new RegExp(regex);
     return regex.test(name);
   },
-  'params': function(params, node) {
+  'params': function(params, node, only) {
     var nodeParams = convertParams(node[3]),
+        nodeParamKeys = Object.keys(nodeParams),
+        paramKeys = [],
         param, paramKey, paramVal;
     for (var i=0, len=params.length; i<len; i++) {
       param = params[i];
       paramKey = param[0];
       paramVal = param[1];
+      paramKeys.push(paramKey);
 
       // Check for param existence
       if (!nodeParams[paramKey]) {
@@ -292,11 +320,17 @@ swiffer.conditions = {
         }
       }
     }
+    if (only && (_.difference(nodeParamKeys, paramKeys).length || _.difference(paramKeys, nodeParamKeys).length)) {
+      return false;
+    }
     return true;
   },
-  'filters': function(filters, node) {
+  'filters': function(filters, node, only) {
     var nodeFilters = node[2].slice(1);
     if (_.difference(filters, nodeFilters).length) {
+      return false;
+    }
+    if (only && filters.length !== nodeFilters.length) {
       return false;
     }
     return true;
