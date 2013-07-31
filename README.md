@@ -4,7 +4,7 @@ Clean up your Dust
 
 Summary
 =======
-Swiffer is a command line tool with IDE integration that helps you keep your dust clean. It warns about Dust parse errors, then checks any set of rules defined using the Swiffer DSL (see below).
+Swiffer is a command line lint tool with IDE integration that helps you keep your dust clean. It warns about Dust parse errors, then checks any set of rules defined using the Swiffer DSL (see below).
 
 How it works:
 =============
