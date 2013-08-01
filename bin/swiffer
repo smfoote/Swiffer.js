@@ -1,12 +1,57 @@
 #!/usr/bin/env node
 var swiffer  = require('../Swiffer'),
     fs = require('fs'),
-    templateName = process.argv.slice(2).join(' '),
-    template;
+    path = require('path'),
+    cli = require('cli'),
+    pathUtil = require('../util/pathUtil'),
+    _ = require('underscore');
 
-try {
-  template = fs.readFileSync(templateName).toString('utf8');
-  swiffer.clean(template);
-} catch(err) {
-  console.error(err);
-}
+// Add options
+cli.parse({
+  rules: ['r', 'Indicates where Swiffer should look for rules. \'mine\' only searches for rules in the templates directory and its parents. \'swiffer\' only uses the rules defined by Swiffer. \'all\' (which is the default) uses all of the rules found by \'mine\' and \'swiffer\'', 'string', 'all']
+});
+
+cli.main(function(args, options) {
+  var template, templatePath, templateDir, i, len, results,
+      cwd = process.cwd(),
+      swifferDir = __dirname.split('/').slice(0, -1).join('/'),
+      paths = [],
+      rules = [];
+
+  if (this.argc) {
+    for (i=0, len=args.length; i<len; i++) {
+      rules = [];
+      templatePath = path.resolve(cwd + '/' + args[i]);
+      templateDir = templatePath.split('/').slice(0, -1).join('/');
+      if (options.rules !== 'swiffer') {
+        // Get .swifferrc's from current directory and/or parent directories.
+        paths = paths.concat(pathUtil.searchUp(templateDir, '.swifferrc'));
+      }
+      if (options.rules !== 'mine') {
+        // Get Swiffer's .swifferrc
+        paths.push(swifferDir + '/.swifferrc');
+      }
+      // No repeats
+      paths = _.uniq(paths);
+      paths.forEach(function(path) {
+        try {
+          rules = rules.concat(JSON.parse(fs.readFileSync(path).toString('utf8')));
+        } catch(err) {
+          this.fatal('.swifferrc files must be valid JSON. Try validating with jsonlint.com');
+        }
+      });
+
+      try {
+        template = fs.readFileSync(templatePath).toString('utf8');
+        results = swiffer.clean(template, rules);
+        if (results.length) {
+          for (var j=0, l=results.length; j<l; j++) {
+            console.error(args[i] + ' - ' + results[j]);
+          }
+        }
+      } catch(err) {
+        this.fatal(err);
+      }
+    }
+  }
+});

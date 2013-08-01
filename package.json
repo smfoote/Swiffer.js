@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "dustjs-linkedin": "latest",
-    "underscore": "1.5.1"
+    "underscore": "1.5.1",
+    "cli": "0.4.x"
   },
   "devDependencies": {
     "mocha": "1.12.0",

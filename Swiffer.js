@@ -2,20 +2,25 @@
 var swiffer = {},
     dust = require('dustjs-linkedin'),
     fs = require('fs'),
+    path = require('path'),
     _ = require('underscore');
 
-swiffer.rules = {
-  '#': [],
-  '?': [],
-  '^': [],
-  '@': [],
-  '>': [],
-  '<': [],
-  '+': [],
-  'special': [],
-  'reference': [],
-  'comment':[]
+swiffer.resetRules = function() {
+  swiffer.rules = {
+    '#': [],
+    '?': [],
+    '^': [],
+    '@': [],
+    '>': [],
+    '<': [],
+    '+': [],
+    'special': [],
+    'reference': [],
+    'comment':[]
+  };
 };
+
+swiffer.errors = [];
 
 /**
  * Add the given error to the errors array
@@ -28,18 +33,17 @@ swiffer.reportError = function(msg, line, col) {
   if (line && col) {
     msg = 'Line ' + line + ', Column ' + col + ': ' + msg;
   }
-  console.error(msg);
+  swiffer.errors.push(msg);
 };
 
 /**
  * Take a set of rules and sort them by type, assigning them to swiffer.rules
  * @method sortRulesByType
- * @param {String} rules A string containing the rules.
+ * @param {Array} rules An array of rules.
  * @return {Void}
  * @private
  */
 function sortRulesByType(rules) {
-  rules = JSON.parse(rules);
   _.each(rules, function(rule) {
     var type = rule.target.type;
     if (swiffer.rules[type]) {
@@ -53,18 +57,23 @@ function sortRulesByType(rules) {
 /**
  * Report any parse errors and rule exceptions of a given template
  * @param {String} template The template to be cleaned
+ * @param {Array} rules A list of rules to be checked, in the Swiffer DSL
  * @return {Boolean} Returns true if all tests pass, and false otherwise
  * @public
  */
-swiffer.clean = function(template) {
+swiffer.clean = function(template, rules) {
 
   // The context gets passed around and maintains the state of the AST
   var context = {
     within: [],
     name: ''
   }, ast, errInfo;
+  // Reset errors
+  swiffer.errors = [];
+  // Reset rules
+  swiffer.resetRules();
   // Get the rules set up
-  sortRulesByType(fs.readFileSync('./.swifferrc').toString('utf8'));
+  sortRulesByType(rules);
   try {
     ast = dust.parse(template);
     swiffer.step(context, ast);
@@ -79,6 +88,7 @@ swiffer.clean = function(template) {
     }
     swiffer.reportError(err.message, err.line, err.column);
   }
+  return swiffer.errors;
 };
 
 /**
