@@ -15,6 +15,7 @@ cli.main(function(args, options) {
   var template, templatePath, templateDir, i, len, results,
       cwd = process.cwd(),
       swifferDir = __dirname.split('/').slice(0, -1).join('/'),
+      that = this,
       paths = [],
       rules = [];
 
@@ -37,7 +38,8 @@ cli.main(function(args, options) {
         try {
           rules = rules.concat(JSON.parse(fs.readFileSync(path).toString('utf8')));
         } catch(err) {
-          this.fatal('.swifferrc files must be valid JSON. Try validating with jsonlint.com');
+          console.log('Unable to parse JSON file at ' + path);
+          that.fatal('.swifferrc files must be valid JSON. Try validating with jsonlint.com');
         }
       });
 

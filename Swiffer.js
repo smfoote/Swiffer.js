@@ -16,7 +16,8 @@ swiffer.resetRules = function() {
     '+': [],
     'special': [],
     'reference': [],
-    'comment':[]
+    'comment':[],
+    'partial': []
   };
 };
 
@@ -147,6 +148,7 @@ swiffer.nodes = {
     swiffer.stepThroughSection(context, node);
   },
   'partial': function(context, node) {
+    swiffer.check(context, node);
   },
   '<': function(context, node) {
     context.name = node[1][1];
@@ -206,7 +208,7 @@ function checkWithin(ruleWithin, contextWithin) {
  */
 swiffer.getRules = function(context, node) {
   var type = node[0],
-      name = node[1].text,
+      name = node[1].text || node[1][1],
       rules = swiffer.rules[type],
       result = [],
       i, len, rule;
@@ -233,7 +235,7 @@ swiffer.getRules = function(context, node) {
  */
 swiffer.check = function(context, node) {
   var type = node[0],
-      name = node[1].text,
+      name = node[1].text || node[1][1],
       rules, conditions, i, len, k;
   rules = swiffer.getRules(context, node);
   rules.forEach(function(rule) {
@@ -306,6 +308,11 @@ swiffer.conditions = {
     regex = new RegExp(regex);
     return regex.test(name);
   },
+
+
+  'bodies': function(condition, node, only) {
+    return node[4].lenght > 1;
+  },
   'params': function(params, node, only) {
     var nodeParams = convertParams(node[3]),
         nodeParamKeys = Object.keys(nodeParams),
@@ -324,8 +331,8 @@ swiffer.conditions = {
 
       // Check for value match
       if (paramVal) {
-        if ((paramVal instanceof RegExp && !paramVal.test(nodeParams[paramKey])) ||
-            (typeof paramVal === 'string' && paramVal !== nodeParams[paramKey])) {
+        paramVal = new RegExp(paramVal);
+        if (!paramVal.test(nodeParams[paramKey])) {
           return false;
         }
       }
