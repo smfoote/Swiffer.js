@@ -4,56 +4,92 @@ var swiffer  = require('../Swiffer'),
     path = require('path'),
     cli = require('cli'),
     pathUtil = require('../util/pathUtil'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    dustFileExtensions = ['tl', 'dust', 'dustjs', 'tmpl'],
+    rulesForPathMap = {},
+    totalErrors = 0,
+    rFileExtension = /.*\.([a-zA-Z]+)$/;
 
 // Add options
 cli.parse({
-  rules: ['r', 'Indicates where Swiffer should look for rules. \'mine\' only searches for rules in the templates directory and its parents. \'swiffer\' only uses the rules defined by Swiffer. \'all\' (which is the default) uses all of the rules found by \'mine\' and \'swiffer\'', 'string', 'all']
+  recursive: ['R',  'Recursively check dust files starting with the given directory'],
+  rules: ['r', 'Indicates where Swiffer should look for rules. \'mine\' only searches for rules in the templates directory and its parents. \'swiffer\' only uses the rules defined by Swiffer. \'all\' (which is the default) uses all of the rules found by \'mine\' and \'swiffer\'', 'string', 'all'],
+  type: ['t', 'Set the file extension type that swiffer should test', 'string']
 });
 
-cli.main(function(args, options) {
-  var template, templatePath, templateDir, i, len, results,
-      cwd = process.cwd(),
+function getRules(path, ruleLocation) {
+  var rules = rulesForPathMap[path] || [],
       swifferDir = __dirname.split('/').slice(0, -1).join('/'),
-      that = this,
-      paths = [],
-      rules = [];
+      paths = [];
+  if (rules.length) {
+    return rules;
+  } else {
+    if (ruleLocation !== 'swiffer') {
+      // Get .swifferrc's from current directory and/or parent directories.
+      paths = paths.concat(pathUtil.searchUp(path, '.swifferrc'));
+    }
+    if (ruleLocation !== 'mine') {
+      // Get Swiffer's .swifferrc
+      paths.push(swifferDir + '/.swifferrc');
+    }
+    // No repeats
+    paths = _.uniq(paths);
 
-  if (this.argc) {
-    for (i=0, len=args.length; i<len; i++) {
-      rules = [];
-      templatePath = path.resolve(cwd + '/' + args[i]);
-      templateDir = templatePath.split('/').slice(0, -1).join('/');
-      if (options.rules !== 'swiffer') {
-        // Get .swifferrc's from current directory and/or parent directories.
-        paths = paths.concat(pathUtil.searchUp(templateDir, '.swifferrc'));
-      }
-      if (options.rules !== 'mine') {
-        // Get Swiffer's .swifferrc
-        paths.push(swifferDir + '/.swifferrc');
-      }
-      // No repeats
-      paths = _.uniq(paths);
-      paths.forEach(function(path) {
-        try {
-          rules = rules.concat(JSON.parse(fs.readFileSync(path).toString('utf8')));
-        } catch(err) {
-          console.log('Unable to parse JSON file at ' + path);
-          that.fatal('.swifferrc files must be valid JSON. Try validating with jsonlint.com');
-        }
-      });
-
+    // Parse rules in each of the paths
+    paths.forEach(function(path) {
       try {
-        template = fs.readFileSync(templatePath).toString('utf8');
-        results = swiffer.clean(template, rules);
-        if (results.length) {
-          for (var j=0, l=results.length; j<l; j++) {
-            console.error(args[i] + ' - ' + results[j]);
-          }
-        }
+        rules = rules.concat(JSON.parse(fs.readFileSync(path).toString('utf8')));
       } catch(err) {
-        this.fatal(err);
+        console.log('Unable to parse JSON file at ' + path);
+        return false;
+      }
+    });
+    // Cache rules for path
+    rulesForPathMap[path] = rules;
+    return rules;
+  }
+}
+
+function checkFiles(files, options, context) {
+  var template, templatePath, templateDir, i, len, results, fileExtension, file,
+      stats, fileExtension, results;
+  for (i=0, len=files.length; i<len; i++) {
+    file = files[i]
+    stats = fs.statSync(file);
+    if (stats.isDirectory()) {
+      if (options.recursive) {
+        dirFiles = _.map(fs.readdirSync(file), function(fileName) { return file + '/' + fileName; });
+        checkFiles(dirFiles, options, context);
+      }
+    } else {
+      fileExtension = /.*\.([a-zA-Z]+)$/.exec(file);
+      fileExtension = fileExtension && fileExtension[1] ? fileExtension[1] : '';
+      if (options.type === fileExtension || _.contains(dustFileExtensions, fileExtension)) {
+        templateDir = file.split('/').slice(0, -1).join('/');
+        rules = getRules(templateDir, options.rules);
+        try {
+          template = fs.readFileSync(file).toString('utf8');
+          results = swiffer.clean(template, rules);
+          if (results.length) {
+            for (var j=0, l=results.length; j<l; j++) {
+              console.error(file + ' - ' + results[j]);
+            }
+            console.log('\n' + results.length + ' errors total\n');
+            totalErrors += results.length;
+          }
+        } catch(err) {
+          context.fatal(err);
+        }
       }
     }
   }
+}
+
+
+cli.main(function(args, options) {
+  var cwd = process.cwd();
+
+  files = _.map(args, function(filePath) { return path.resolve(cwd + '/' + filePath)});
+  checkFiles(files, options, this);
+  console.log('Total Errors: ' + totalErrors);
 });

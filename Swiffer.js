@@ -14,6 +14,7 @@ swiffer.resetRules = function() {
     '>': [],
     '<': [],
     '+': [],
+    '%': [],
     'special': [],
     'reference': [],
     'comment':[],
@@ -191,6 +192,9 @@ swiffer.nodes = {
     swiffer.check(context, node);
   },
   'comment': function(context, node) {
+    swiffer.check(context, node);
+  },
+  '%': function(context, node) {
     swiffer.check(context, node);
   }
 };
