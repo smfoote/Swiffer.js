@@ -5,6 +5,14 @@
   "version": "0.0.1",
   "author": "Steven Foote <sfoote@linkedin.com>",
   "keywords": ["Dust", "syntax", "lint"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smfoote/Swiffer.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/smfoote/Swiffer.js/issues"
+  },
+  "license": "Apache License, Version 2.0",
   "engines": {
     "node": ">=0.8.0"
   },
