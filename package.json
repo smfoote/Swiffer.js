@@ -4,7 +4,11 @@
   "description": "Command line syntax checker for Dust.",
   "version": "0.0.2",
   "author": "Steven Foote <sfoote@linkedin.com>",
-  "keywords": ["Dust", "syntax", "lint"],
+  "keywords": [
+    "Dust",
+    "syntax",
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/smfoote/Swiffer.js.git"
@@ -12,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/smfoote/Swiffer.js/issues"
   },
-  "license": "Apache License, Version 2.0",
+  "license": "Apache Software License 2.0",
   "engines": {
     "node": ">=0.8.0"
   },
@@ -31,5 +35,11 @@
   },
   "scripts": {
     "test": "mocha test/unit/ --recursive --reporter nyan"
+  },
+  "readmeFilename": "README.md",
+  "gitHead": "f528e967e204ad73c52281ed3b351390656ade32",
+  "directories": {
+    "example": "examples",
+    "test": "test"
   }
 }
