@@ -241,9 +241,7 @@ swiffer.getRules = function(context, node) {
  * @private
  */
 swiffer.check = function(context, node) {
-  var type = node[0],
-      name = node[1].text || node[1][1],
-      rules, conditions, i, len, k;
+  var rules, conditions, i, len, k;
   rules = swiffer.getRules(context, node);
   rules.forEach(function(rule) {
     conditions = rule.conditions;
