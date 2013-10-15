@@ -149,7 +149,10 @@ swiffer.nodes = {
     swiffer.stepThroughSection(context, node);
   },
   'partial': function(context, node) {
+    context.within.push(node[0]);
     swiffer.check(context, node);
+    swiffer.step(context, node[1]);
+    context.pop();
   },
   '<': function(context, node) {
     context.name = node[1][1];
