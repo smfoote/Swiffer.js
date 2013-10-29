@@ -149,7 +149,10 @@ swiffer.nodes = {
     swiffer.stepThroughSection(context, node);
   },
   'partial': function(context, node) {
+    context.within.push(node[0]);
     swiffer.check(context, node);
+    swiffer.step(context, node[1]);
+    context.pop();
   },
   '<': function(context, node) {
     context.name = node[1][1];
@@ -313,7 +316,7 @@ swiffer.conditions = {
 
 
   'bodies': function(condition, node, only) {
-    return node[4].lenght > 1;
+    return node[4].length > 1;
   },
   'params': function(params, node, only) {
     var nodeParams = convertParams(node[3]),
@@ -333,7 +336,7 @@ swiffer.conditions = {
 
       // Check for value match
       if (paramVal) {
-        paramVal = new RegExp(paramVal);
+        paramVal = new RegExp(paramVal.replace(/[\-#$\^*()+\[\]{}|\\,.?\s]/g, '\\$&'));
         if (!paramVal.test(nodeParams[paramKey])) {
           return false;
         }
