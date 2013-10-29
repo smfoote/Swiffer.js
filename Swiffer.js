@@ -152,7 +152,7 @@ swiffer.nodes = {
     context.within.push(node[0]);
     swiffer.check(context, node);
     swiffer.step(context, node[1]);
-    context.pop();
+    context.within.pop();
   },
   '<': function(context, node) {
     context.name = node[1][1];
