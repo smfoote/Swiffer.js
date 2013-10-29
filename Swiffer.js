@@ -1,4 +1,4 @@
-/* global dust:true, _:true, console:false */
+/* global dust:true, _:true */
 var swiffer = {},
     dust = require('dustjs-linkedin'),
     fs = require('fs'),
@@ -337,7 +337,6 @@ swiffer.conditions = {
       // Check for value match
       if (paramVal) {
         paramVal = new RegExp(paramVal);
-        console.log(paramVal);
         if (!paramVal.test(nodeParams[paramKey])) {
           return false;
         }
