@@ -336,7 +336,8 @@ swiffer.conditions = {
 
       // Check for value match
       if (paramVal) {
-        paramVal = new RegExp(paramVal.replace(/[\-#$\^*()+\[\]{}|\\,.?\s]/g, '\\$&'));
+        paramVal = new RegExp(paramVal);
+        console.log(paramVal);
         if (!paramVal.test(nodeParams[paramKey])) {
           return false;
         }
