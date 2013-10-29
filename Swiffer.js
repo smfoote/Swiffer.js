@@ -316,7 +316,7 @@ swiffer.conditions = {
 
 
   'bodies': function(condition, node, only) {
-    return node[4].lenght > 1;
+    return node[4].length > 1;
   },
   'params': function(params, node, only) {
     var nodeParams = convertParams(node[3]),
@@ -336,7 +336,7 @@ swiffer.conditions = {
 
       // Check for value match
       if (paramVal) {
-        paramVal = new RegExp(paramVal);
+        paramVal = new RegExp(paramVal.replace(/[\-#$\^*()+\[\]{}|\\,.?\s]/g, '\\$&'));
         if (!paramVal.test(nodeParams[paramKey])) {
           return false;
         }
