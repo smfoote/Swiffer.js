@@ -14,7 +14,7 @@
       "type": "special"
     },
     "conditions": {
-      "matches": "[s|n|r|lb|rb]"
+      "matches": "^(?:[snr]|(?:rb)|(?:lb))$"
     }
   }
 ]
