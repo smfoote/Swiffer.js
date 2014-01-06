@@ -87,9 +87,7 @@ function checkFiles(files, options, context) {
 
 
 cli.main(function(args, options) {
-  var cwd = process.cwd();
-
-  files = _.map(args, function(filePath) { return path.resolve(cwd + '/' + filePath)});
+  files = _.map(args, function(filePath) { return path.resolve(filePath)});
   checkFiles(files, options, this);
   console.log('Total Errors: ' + totalErrors);
 });
