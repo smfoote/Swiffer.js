@@ -10,6 +10,7 @@ var swiffer  = require('../Swiffer'),
     totalErrors = 0,
     rFileExtension = /.*\.([a-zA-Z]+)$/;
 
+cli.enable('status');
 // Add options
 cli.parse({
   recursive: ['R',  'Recursively check dust files starting with the given directory'],
@@ -40,7 +41,7 @@ function getRules(path, ruleLocation) {
       try {
         rules = rules.concat(JSON.parse(fs.readFileSync(path).toString('utf8')));
       } catch(err) {
-        console.log('Unable to parse JSON file at ' + path);
+        cli.fatal('Unable to parse JSON file at ' + path);
         return false;
       }
     });
@@ -90,4 +91,7 @@ cli.main(function(args, options) {
   files = _.map(args, function(filePath) { return path.resolve(filePath)});
   checkFiles(files, options, this);
   console.log('Total Errors: ' + totalErrors);
+  if (totalErrors > 0) {
+    this.fatal('Please fix the above errors');
+  }
 });
