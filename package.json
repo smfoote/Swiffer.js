@@ -16,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/smfoote/Swiffer.js/issues"
   },
-  "license": "Apache Software License 2.0",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=0.8.0"
   },
@@ -29,15 +29,14 @@
     "cli": "0.4.x"
   },
   "devDependencies": {
-    "mocha": "1.12.0",
-    "sinon": "1.7.3",
-    "expect.js": "0.2.0"
+    "expect": "^1.20.2",
+    "mocha": "^2.5.3",
+    "sinon": "^1.17.5"
   },
   "scripts": {
     "test": "mocha test/unit/ --recursive --reporter nyan"
   },
   "readmeFilename": "README.md",
-  "gitHead": "f528e967e204ad73c52281ed3b351390656ade32",
   "directories": {
     "example": "examples",
     "test": "test"

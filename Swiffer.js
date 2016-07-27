@@ -16,6 +16,7 @@ swiffer.resetRules = function() {
     '+': [],
     '%': [],
     'special': [],
+    'raw': [],
     'reference': [],
     'comment':[],
     'partial': []
@@ -111,7 +112,17 @@ swiffer.stepParts = function(context, node) {
  * @private
  */
 swiffer.step = function(context, node) {
-  swiffer.nodes[node[0]](context, node);
+  var currentType = node[0],
+      stepper = swiffer.nodes[currentType];
+  if (stepper && typeof stepper === 'function') {
+    stepper(context, node);
+  } else {
+    // something is in the dust AST that we aren't handling
+    // fallback to just checking this node
+    console.warn('Be careful! `' + currentType + '` nodes were found when parsing the template. Unfortunately, Swiffer doesn\'t know how to handle these yet.');
+    console.warn('If you have rules for `' + currentType + '` Swiffer will try to check it');
+    swiffer.check(context, node);
+  }
 };
 
 /**
@@ -190,6 +201,10 @@ swiffer.nodes = {
       swiffer.step(context, node[i]);
     }
   },
+  'raw': function(context, node) {
+    context.name = node[1];
+    swiffer.check(context, node);
+  },
   'special': function(context, node) {
     context.name = node[1];
     swiffer.check(context, node);
@@ -216,7 +231,7 @@ function checkWithin(ruleWithin, contextWithin) {
 swiffer.getRules = function(context, node) {
   var type = node[0],
       name = node[1].text || node[1][1],
-      rules = swiffer.rules[type],
+      rules = swiffer.rules[type] || [],
       result = [],
       i, len, rule;
   for (i=0, len=rules.length; i<len; i++) {
