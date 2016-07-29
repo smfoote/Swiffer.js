@@ -2,7 +2,7 @@
   "name": "swiffer",
   "main": "Swiffer.js",
   "description": "Command line syntax checker for Dust.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Steven Foote <sfoote@linkedin.com>",
   "keywords": [
     "Dust",
